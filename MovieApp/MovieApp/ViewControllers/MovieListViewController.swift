@@ -24,17 +24,8 @@ class MovieListViewController: UIViewController {
         case .all:
             title = searchType.title
             searchBar.placeholder = "search movies by title/actor/genre/director"
-        case .year:
-            title = searchType.title
-            searchBar.placeholder = "search movies by year"
-        case .genre:
+        case .year,.genre,.directors,.actors:
             searchBar.isHidden = true
-        case .directors:
-            title = searchType.title
-            searchBar.placeholder = "search movies by director"
-        case .actors:
-            title = searchType.title
-            searchBar.placeholder = "search movies by actor"
         }
         movieTableView.register(cellName: MovieDetailsTableViewCell.xibIdentifier)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -124,14 +115,8 @@ class MovieListViewModel {
             switch searchType {
             case .all:
                 filteredMovies = searchAll(text: text)
-            case .year:
-                filteredMovies = filterMoviesOnYear(text: text)
-            case .genre:
-                filteredMovies = filterMoviesOnGenre(text: text)
-            case .directors:
-                filteredMovies = filterMoviesOnDirectors(text: text)
-            case .actors:
-                filteredMovies = filterMoviesOnActors(text: text)
+            case .year,.genre,.directors,.actors:
+                filteredMovies = movies
             }
         }
     }
@@ -139,14 +124,9 @@ class MovieListViewModel {
     private func searchAll(text: String) -> [Movie] {
         var results = filterMoviesOnYear(text: text)
         results.append(contentsOf: filterMoviesOnGenre(text: text))
-        results.append(contentsOf: filterMoviesOnTitle(text: text))
         results.append(contentsOf: filterMoviesOnDirectors(text: text))
         results.append(contentsOf: filterMoviesOnActors(text: text))
         return Array(Set(results))
-    }
-    
-    private func filterMoviesOnTitle(text: String) -> [Movie] {
-        movies.filter{ $0.title.lowercased().contains(text) }
     }
     
     private func filterMoviesOnYear(text: String) -> [Movie] {
