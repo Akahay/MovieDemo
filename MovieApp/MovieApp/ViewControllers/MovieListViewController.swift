@@ -124,6 +124,7 @@ class MovieListViewModel {
     private func searchAll(text: String) -> [Movie] {
         var results = filterMoviesOnYear(text: text)
         results.append(contentsOf: filterMoviesOnGenre(text: text))
+        results.append(contentsOf: filterMoviesOnTitle(text: text))
         results.append(contentsOf: filterMoviesOnDirectors(text: text))
         results.append(contentsOf: filterMoviesOnActors(text: text))
         return Array(Set(results))
@@ -131,6 +132,10 @@ class MovieListViewModel {
     
     private func filterMoviesOnYear(text: String) -> [Movie] {
         movies.filter{ $0.year.contains(text) || $0.year.inBetween(value: text) }
+    }
+    
+    private func filterMoviesOnTitle(text: String) -> [Movie] {
+        movies.filter{ $0.title.lowercased().contains(text) }
     }
     
     private func filterMoviesOnGenre(text: String) -> [Movie] {

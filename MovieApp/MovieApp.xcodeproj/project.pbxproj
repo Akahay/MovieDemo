@@ -27,7 +27,7 @@
 		4F7BF80428DF5E9700F31493 /* UIStoryboard+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7BF80328DF5E9700F31493 /* UIStoryboard+Extensions.swift */; };
 		4F7BF80628DF5EB400F31493 /* UITableView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7BF80528DF5EB400F31493 /* UITableView+Extensions.swift */; };
 		4F7BF80828DF5ED300F31493 /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7BF80728DF5ED300F31493 /* String+Extensions.swift */; };
-		4F7BF80C28DF875000F31493 /* GenreListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7BF80B28DF875000F31493 /* GenreListViewController.swift */; };
+		4F7BF80C28DF875000F31493 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7BF80B28DF875000F31493 /* ListViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,7 +53,7 @@
 		4F7BF80328DF5E9700F31493 /* UIStoryboard+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStoryboard+Extensions.swift"; sourceTree = "<group>"; };
 		4F7BF80528DF5EB400F31493 /* UITableView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableView+Extensions.swift"; sourceTree = "<group>"; };
 		4F7BF80728DF5ED300F31493 /* String+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
-		4F7BF80B28DF875000F31493 /* GenreListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenreListViewController.swift; sourceTree = "<group>"; };
+		4F7BF80B28DF875000F31493 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,7 +126,7 @@
 				4F7BF7FE28DF39E700F31493 /* FilterlListViewController.swift */,
 				4F580D7328DF0E4C00867619 /* MovieListViewController.swift */,
 				4F7BF7FB28DF2F1400F31493 /* MovieDetailsViewController.swift */,
-				4F7BF80B28DF875000F31493 /* GenreListViewController.swift */,
+				4F7BF80B28DF875000F31493 /* ListViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -237,7 +237,7 @@
 				4F580D7428DF0E4C00867619 /* MovieListViewController.swift in Sources */,
 				4F7BF80228DF5E7000F31493 /* UIViewController+Extensions.swift in Sources */,
 				4F7BF7FA28DF260D00F31493 /* UITableViewCell+Extensions.swift in Sources */,
-				4F7BF80C28DF875000F31493 /* GenreListViewController.swift in Sources */,
+				4F7BF80C28DF875000F31493 /* ListViewController.swift in Sources */,
 				4F7BF80428DF5E9700F31493 /* UIStoryboard+Extensions.swift in Sources */,
 				4F580D8828DF103000867619 /* Movie.swift in Sources */,
 				4F580D8628DF0F2E00867619 /* SearchType.swift in Sources */,

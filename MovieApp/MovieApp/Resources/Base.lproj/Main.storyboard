@@ -168,7 +168,7 @@
         <!--List View Controller-->
         <scene sceneID="ZEy-vB-SZ3">
             <objects>
-                <viewController storyboardIdentifier="GenreListViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="tfe-mV-XQj" customClass="ListViewController" customModule="MovieApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ListViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="tfe-mV-XQj" customClass="ListViewController" customModule="MovieApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5GG-Lr-pQ6">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
