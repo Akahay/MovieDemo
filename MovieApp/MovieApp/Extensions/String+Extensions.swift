@@ -20,4 +20,8 @@ extension String {
         }
         return false
     }
+    
+    var getFirstValidForYear: String {
+        return String(split(separator: "–").first ?? "")
+    }
 }

@@ -55,13 +55,11 @@ extension FilterlListViewController: UITableViewDelegate, UITableViewDataSource 
         switch searchType {
         case .all:
             let vc: MovieListViewController = UIStoryboard.vcInstance()
-            vc.viewModel.movies = movies ?? []
-            vc.searchType = searchTypes[indexPath.row]
+            vc.viewModel.set(movies: movies ?? [], searchType: searchTypes[indexPath.row])
             navigationController?.pushViewController(vc, animated: true)
         case .year,.genre,.directors,.actors:
             let vc: ListViewController = UIStoryboard.vcInstance()
-            vc.movies = movies ?? []
-            vc.searchType = searchType
+            vc.viewModel.set(movies: movies ?? [], searchType: searchType)
             navigationController?.pushViewController(vc, animated: true)
         }
     }

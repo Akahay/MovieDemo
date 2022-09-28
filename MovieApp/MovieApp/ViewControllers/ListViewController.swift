@@ -7,32 +7,17 @@
 
 import UIKit
 
-struct DataSource {
-    var keys: [String] = []
-    var keyToMoviesMap: [String: [Movie]] = [:]
-}
 
 class ListViewController: UIViewController {
     
-    @IBOutlet weak var mainTableView: UITableView!
+    @IBOutlet private weak var mainTableView: UITableView!
     
-    let viewModel = GenreListViewModel()
-    var movies: [Movie] = []
-    var searchType: SearchType = .all
-    var dataSource = DataSource()
+    var viewModel = GenreListViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = searchType.title
-        if searchType == .genre {
-            dataSource = viewModel.curateGenreDataSource(movies: movies)
-        } else if searchType == .year {
-            dataSource = viewModel.curateYearDataSource(movies: movies)
-        } else if searchType == .directors {
-            dataSource = viewModel.curateDirectorDataSource(movies: movies)
-        } else if searchType == .actors {
-            dataSource = viewModel.curateActorDataSource(movies: movies)
-        }
+        title = viewModel.vcTitle
+        viewModel.makeDataSource()
         mainTableView.reloadData()
     }
     
@@ -40,30 +25,75 @@ class ListViewController: UIViewController {
 
 extension ListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        dataSource.keys.count
+        viewModel.numberOfRows
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let filter = dataSource.keys[indexPath.row]
-        let count = dataSource.keyToMoviesMap[filter]?.count ?? 0
-        cell.textLabel?.text = filter + "(\(count))"
+        cell.textLabel?.text = viewModel.cellTitle(index: indexPath.row)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let vc: MovieListViewController = UIStoryboard.vcInstance()
-        let filter = dataSource.keys[indexPath.row]
-        let movies = dataSource.keyToMoviesMap[filter]
-        vc.viewModel.movies = movies ?? []
-        vc.searchType = .genre
-        vc.title = filter
+        vc.title = viewModel.movieTitle(index: indexPath.row)
+        vc.viewModel.set(movies: viewModel.moviesFor(index: indexPath.row), searchType: viewModel.searchType)
         navigationController?.pushViewController(vc, animated: true)
     }
 }
 
-struct GenreListViewModel {
+class GenreListViewModel {
+    
+    struct DataSource {
+        var keys: [String] = []
+        var keyToMoviesMap: [String: [Movie]] = [:]
+    }
+    
+    var dataSource = DataSource()
+    var movies: [Movie] = []
+    var searchType: SearchType = .all
+    
+    func set(movies: [Movie], searchType: SearchType) {
+        self.movies = movies
+        self.searchType = searchType
+    }
+    
+    var vcTitle: String {
+        searchType.title
+    }
+    
+    var numberOfRows: Int {
+        dataSource.keys.count
+    }
+    
+    func moviesFor(index: Int) -> [Movie] {
+        dataSource.keyToMoviesMap[movieTitle(index: index)] ?? []
+    }
+    
+    func cellTitle(index: Int) -> String {
+        movieTitle(index: index) + "(" + movieCount(index: index) + ")"
+    }
+    
+    func movieTitle(index: Int) -> String {
+        dataSource.keys[index]
+    }
+    
+    private func movieCount(index: Int) -> String {
+        "\(moviesFor(index: index).count)"
+    }
+    
+    func makeDataSource() {
+        if searchType == .genre {
+            dataSource = curateGenreDataSource(movies: movies)
+        } else if searchType == .year {
+            dataSource = curateYearDataSource(movies: movies)
+        } else if searchType == .directors {
+            dataSource = curateDirectorDataSource(movies: movies)
+        } else if searchType == .actors {
+            dataSource = curateActorDataSource(movies: movies)
+        }
+    }
     
     private func update(keys: inout [String], keyToMoviesMap: inout [String: [Movie]], key: String, movie: Movie) {
         if !keys.contains(key) {
@@ -77,7 +107,7 @@ struct GenreListViewModel {
         }
     }
     
-    func curateGenreDataSource(movies: [Movie]) -> DataSource {
+    private func curateGenreDataSource(movies: [Movie]) -> DataSource {
         
         var keys: [String] = []
         var keyToMoviesMap: [String: [Movie]] = [:]
@@ -92,7 +122,7 @@ struct GenreListViewModel {
         return DataSource(keys: keys, keyToMoviesMap: keyToMoviesMap)
     }
     
-    func curateYearDataSource(movies: [Movie]) -> DataSource {
+    private func curateYearDataSource(movies: [Movie]) -> DataSource {
         
         var keys: [String] = []
         var keyToMoviesMap: [String: [Movie]] = [:]
@@ -113,7 +143,7 @@ struct GenreListViewModel {
         return DataSource(keys: keys, keyToMoviesMap: keyToMoviesMap)
     }
     
-    func curateDirectorDataSource(movies: [Movie]) -> DataSource {
+    private func curateDirectorDataSource(movies: [Movie]) -> DataSource {
         
         var keys: [String] = []
         var keyToMoviesMap: [String: [Movie]] = [:]
@@ -127,7 +157,7 @@ struct GenreListViewModel {
         return DataSource(keys: keys, keyToMoviesMap: keyToMoviesMap)
     }
     
-    func curateActorDataSource(movies: [Movie]) -> DataSource {
+    private func curateActorDataSource(movies: [Movie]) -> DataSource {
         
         var keys: [String] = []
         var keyToMoviesMap: [String: [Movie]] = [:]

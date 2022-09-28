@@ -9,23 +9,24 @@ import UIKit
 
 class MovieListViewController: UIViewController {
     
-    @IBOutlet weak var movieTableView: UITableView!
-    @IBOutlet weak var searchBar: UISearchBar!
-    @IBOutlet weak var mainScrollViewBottomConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var movieTableView: UITableView!
+    @IBOutlet private weak var searchBar: UISearchBar!
+    @IBOutlet private weak var mainScrollViewBottomConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var sequenceControlStackView: UIStackView!
     
     let imageCache = NSCache<AnyObject, AnyObject>()
     
     let viewModel = MovieListViewModel()
-    var searchType: SearchType = .all
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        switch searchType {
-        case .all:
-            title = searchType.title
+        if viewModel.searchType == .all {
+            title = viewModel.searchType.title
             searchBar.placeholder = "search movies by title/actor/genre/director"
-        case .year,.genre,.directors,.actors:
+        } else {
             searchBar.isHidden = true
+            sequenceControlStackView.isHidden = true
         }
         movieTableView.register(cellName: MovieDetailsTableViewCell.xibIdentifier)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -38,6 +39,21 @@ class MovieListViewController: UIViewController {
     
     @objc private func keyboardWillHide(_ notification: Notification) {
         adjustInsetForKeyboardShow(show: false, notification: notification)
+    }
+    
+    @IBAction private func sortByAscendingTitle() {
+        viewModel.sortType = .ascending
+        movieTableView.reloadData()
+    }
+    
+    @IBAction private func sortByDescendingTitle() {
+        viewModel.sortType = .descending
+        movieTableView.reloadData()
+    }
+    
+    @IBAction private func sortByYear() {
+        viewModel.sortType = .year
+        movieTableView.reloadData()
     }
     
     private func adjustInsetForKeyboardShow(show: Bool, notification: Notification) {
@@ -59,12 +75,12 @@ class MovieListViewController: UIViewController {
 extension MovieListViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        viewModel.update(text: searchText, searchType: searchType)
+        viewModel.update(text: searchText)
         movieTableView.reloadData()
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        viewModel.update(text: "", searchType: .all)
+        viewModel.update(text: "")
         movieTableView.reloadData()
     }
 }
@@ -94,31 +110,62 @@ extension MovieListViewController: UITableViewDelegate, UITableViewDataSource {
 
 class MovieListViewModel {
     
+    enum SortType {
+        case ascending
+        case descending
+        case year
+    }
+    
+    var sortType: SortType = .ascending {
+        didSet {
+            filterOnLastSelectedSort()
+        }
+    }
+    
     var movies: [Movie] = [] {
         didSet {
             filteredMovies = movies
         }
     }
+    
+    var searchType: SearchType = .all
     var filteredMovies: [Movie] = []
     
     var numberOfRows: Int {
         filteredMovies.count
     }
     
-    func update(text: String, searchType: SearchType) {
+    func set(movies: [Movie], searchType: SearchType) {
+        self.movies = movies
+        self.searchType = searchType
+    }
+    
+    func update(text: String) {
         
         let text = text.lowercased()
         
         if text.isEmpty {
             filteredMovies = movies
         } else {
-            switch searchType {
-            case .all:
-                filteredMovies = searchAll(text: text)
-            case .year,.genre,.directors,.actors:
-                filteredMovies = movies
-            }
+            filteredMovies = searchAll(text: text)
         }
+        filterOnLastSelectedSort()
+    }
+    
+    func movie(index: Int) -> Movie {
+        filteredMovies[index]
+    }
+    
+    private func filterOnLastSelectedSort() {
+        switch sortType {
+        case .ascending:
+            sortByTitleAscending()
+        case .descending:
+            sortByTitleDescending()
+        case .year:
+            sortByYear()
+        }
+        
     }
     
     private func searchAll(text: String) -> [Movie] {
@@ -150,7 +197,15 @@ class MovieListViewModel {
         movies.filter{ $0.actors.lowercased().contains(text) }
     }
     
-    func movie(index: Int) -> Movie {
-        filteredMovies[index]
+    private func sortByTitleAscending() {
+        filteredMovies.sort { $0.title.lowercased() < $1.title.lowercased() }
+    }
+    
+    private func sortByTitleDescending() {
+        filteredMovies.sort { $0.title.lowercased() > $1.title.lowercased() }
+    }
+    
+    private func sortByYear() {
+        filteredMovies.sort {  Int($0.year.getFirstValidForYear) ?? 0 < Int($1.year.getFirstValidForYear) ?? 0 }
     }
 }
