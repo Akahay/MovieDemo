@@ -18,17 +18,16 @@ class MovieListViewController: UIViewController {
     
     let viewModel = MovieListViewModel()
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         if viewModel.searchType == .all {
             title = viewModel.searchType.title
-            searchBar.placeholder = "search movies by title/actor/genre/director"
+            searchBar.placeholder = viewModel.searchbarPlaceholder
         } else {
             searchBar.isHidden = true
             sequenceControlStackView.isHidden = true
         }
-        movieTableView.register(cellName: MovieDetailsTableViewCell.xibIdentifier)
+        movieTableView.register(cellNames: [MovieListViewCell.xibIdentifier])
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -42,12 +41,12 @@ class MovieListViewController: UIViewController {
     }
     
     @IBAction private func sortByAscendingTitle() {
-        viewModel.sortType = .ascending
+        viewModel.sortType = .titleAscending
         movieTableView.reloadData()
     }
     
     @IBAction private func sortByDescendingTitle() {
-        viewModel.sortType = .descending
+        viewModel.sortType = .titleDescending
         movieTableView.reloadData()
     }
     
@@ -62,13 +61,13 @@ class MovieListViewController: UIViewController {
         let keyboardFrame = value.cgRectValue
         let adjustmentHeight = (keyboardFrame.height) * (show ? 1 : 0)
         
-        UIView.animate(withDuration: 0.5, animations: {[weak self] in
+        UIView.animate(withDuration: 0.5) {[weak self] in
             self?.mainScrollViewBottomConstraint.constant = adjustmentHeight
-        }, completion: { (completed) in
+        } completion: { (completed) in
             if show {
                 self.movieTableView.scrollRectToVisible(self.searchBar.frame, animated: true)
             }
-        })
+        }
     }
 }
 
@@ -92,120 +91,17 @@ extension MovieListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: MovieDetailsTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: MovieListViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.set(movie: viewModel.movie(index: indexPath.row), imageCache: imageCache)
         return cell
     }
-    
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         view.endEditing(true)
         let vc: MovieDetailsViewController = UIStoryboard.vcInstance()
-        vc.movie = viewModel.movie(index: indexPath.row)
+        vc.viewModel.movie = viewModel.movie(index: indexPath.row)
         vc.imageCache = imageCache
         navigationController?.pushViewController(vc, animated: true)
-    }
-}
-
-class MovieListViewModel {
-    
-    enum SortType {
-        case ascending
-        case descending
-        case year
-    }
-    
-    var sortType: SortType = .ascending {
-        didSet {
-            filterOnLastSelectedSort()
-        }
-    }
-    
-    var movies: [Movie] = [] {
-        didSet {
-            filteredMovies = movies
-        }
-    }
-    
-    var searchType: SearchType = .all
-    var filteredMovies: [Movie] = []
-    
-    var numberOfRows: Int {
-        filteredMovies.count
-    }
-    
-    func set(movies: [Movie], searchType: SearchType) {
-        self.movies = movies
-        self.searchType = searchType
-    }
-    
-    func update(text: String) {
-        
-        let text = text.lowercased()
-        
-        if text.isEmpty {
-            filteredMovies = movies
-        } else {
-            filteredMovies = searchAll(text: text)
-        }
-        filterOnLastSelectedSort()
-    }
-    
-    func movie(index: Int) -> Movie {
-        filteredMovies[index]
-    }
-    
-    private func filterOnLastSelectedSort() {
-        switch sortType {
-        case .ascending:
-            sortByTitleAscending()
-        case .descending:
-            sortByTitleDescending()
-        case .year:
-            sortByYear()
-        }
-        
-    }
-    
-    private func searchAll(text: String) -> [Movie] {
-        var results = filterMoviesOnYear(text: text)
-        results.append(contentsOf: filterMoviesOnGenre(text: text))
-        results.append(contentsOf: filterMoviesOnTitle(text: text))
-        results.append(contentsOf: filterMoviesOnDirectors(text: text))
-        results.append(contentsOf: filterMoviesOnActors(text: text))
-        return Array(Set(results))
-    }
-    
-    private func filterMoviesOnYear(text: String) -> [Movie] {
-        movies.filter{ $0.year.contains(text) || $0.year.inBetween(value: text) }
-    }
-    
-    private func filterMoviesOnTitle(text: String) -> [Movie] {
-        movies.filter{ $0.title.lowercased().contains(text) }
-    }
-    
-    private func filterMoviesOnGenre(text: String) -> [Movie] {
-        movies.filter{ $0.genre.lowercased().contains(text) }
-    }
-    
-    private func filterMoviesOnDirectors(text: String) -> [Movie] {
-        movies.filter{ $0.directors.lowercased().contains(text) }
-    }
-    
-    private func filterMoviesOnActors(text: String) -> [Movie] {
-        movies.filter{ $0.actors.lowercased().contains(text) }
-    }
-    
-    private func sortByTitleAscending() {
-        filteredMovies.sort { $0.title.lowercased() < $1.title.lowercased() }
-    }
-    
-    private func sortByTitleDescending() {
-        filteredMovies.sort { $0.title.lowercased() > $1.title.lowercased() }
-    }
-    
-    private func sortByYear() {
-        filteredMovies.sort {  Int($0.year.getFirstValidForYear) ?? 0 < Int($1.year.getFirstValidForYear) ?? 0 }
     }
 }

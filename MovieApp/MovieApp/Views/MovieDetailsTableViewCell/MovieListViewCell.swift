@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MovieDetailsTableViewCell: UITableViewCell {
+class MovieListViewCell: UITableViewCell {
     
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!

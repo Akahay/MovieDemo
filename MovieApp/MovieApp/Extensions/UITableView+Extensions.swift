@@ -9,8 +9,10 @@ import UIKit
 
 extension UITableView {
     
-    func register(cellName: String) {
-        register(UINib(nibName: cellName, bundle: nil), forCellReuseIdentifier: cellName)
+    func register(cellNames: [String]) {
+        cellNames.forEach { cellName in
+            register(UINib(nibName: cellName, bundle: nil), forCellReuseIdentifier: cellName)
+        }
     }
     
     func dequeueReusableCell<T: UITableViewCell>(for indexPath: IndexPath) -> T {

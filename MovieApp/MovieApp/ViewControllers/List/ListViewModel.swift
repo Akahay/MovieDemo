@@ -1,49 +1,13 @@
 //
-//  GenreListViewController.swift
+//  ListViewModel.swift
 //  MovieApp
 //
-//  Created by Akshay Naithani on 24/09/22.
+//  Created by Akshay Naithani on 01/10/22.
 //
 
-import UIKit
+import Foundation
 
-
-class ListViewController: UIViewController {
-    
-    @IBOutlet private weak var mainTableView: UITableView!
-    
-    var viewModel = GenreListViewModel()
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = viewModel.vcTitle
-        viewModel.makeDataSource()
-        mainTableView.reloadData()
-    }
-    
-}
-
-extension ListViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.numberOfRows
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = viewModel.cellTitle(index: indexPath.row)
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let vc: MovieListViewController = UIStoryboard.vcInstance()
-        vc.title = viewModel.movieTitle(index: indexPath.row)
-        vc.viewModel.set(movies: viewModel.moviesFor(index: indexPath.row), searchType: viewModel.searchType)
-        navigationController?.pushViewController(vc, animated: true)
-    }
-}
-
-class GenreListViewModel {
+class ListViewModel {
     
     struct DataSource {
         var keys: [String] = []
@@ -52,19 +16,14 @@ class GenreListViewModel {
     
     var dataSource = DataSource()
     var movies: [Movie] = []
-    var searchType: SearchType = .all
+    var searchType: SearchType = .genre
+    var title: String { searchType.title }
+    var numberOfRows: Int { dataSource.keys.count }
     
     func set(movies: [Movie], searchType: SearchType) {
         self.movies = movies
         self.searchType = searchType
-    }
-    
-    var vcTitle: String {
-        searchType.title
-    }
-    
-    var numberOfRows: Int {
-        dataSource.keys.count
+        self.makeDataSource()
     }
     
     func moviesFor(index: Int) -> [Movie] {
@@ -83,7 +42,7 @@ class GenreListViewModel {
         "\(moviesFor(index: index).count)"
     }
     
-    func makeDataSource() {
+    private func makeDataSource() {
         if searchType == .genre {
             dataSource = curateGenreDataSource(movies: movies)
         } else if searchType == .year {
@@ -108,7 +67,6 @@ class GenreListViewModel {
     }
     
     private func curateGenreDataSource(movies: [Movie]) -> DataSource {
-        
         var keys: [String] = []
         var keyToMoviesMap: [String: [Movie]] = [:]
         for movie in movies {
@@ -123,7 +81,6 @@ class GenreListViewModel {
     }
     
     private func curateYearDataSource(movies: [Movie]) -> DataSource {
-        
         var keys: [String] = []
         var keyToMoviesMap: [String: [Movie]] = [:]
         for movie in movies {
@@ -144,7 +101,6 @@ class GenreListViewModel {
     }
     
     private func curateDirectorDataSource(movies: [Movie]) -> DataSource {
-        
         var keys: [String] = []
         var keyToMoviesMap: [String: [Movie]] = [:]
         for movie in movies {
@@ -158,7 +114,6 @@ class GenreListViewModel {
     }
     
     private func curateActorDataSource(movies: [Movie]) -> DataSource {
-        
         var keys: [String] = []
         var keyToMoviesMap: [String: [Movie]] = [:]
         for movie in movies {
